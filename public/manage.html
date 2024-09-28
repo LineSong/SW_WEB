@@ -4,114 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User List</title>
-    <style>
-        @font-face {
-            font-family: 'GongGothicMedium';
-            src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_20-10@1.0/GongGothicMedium.woff') format('woff');
-            font-weight: normal;
-            font-style: normal;
-        }
-        @font-face {
-            font-family: 'RixInooAriDuriR';
-            src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2207-01@1.0/RixInooAriDuriR.woff2') format('woff2');
-            font-weight: normal;
-            font-style: normal;
-        }
-        body {
-            background-color: rgb(45, 78, 112);
-            font-family: 'GongGothicMedium'; 
-        }
-
-        h1 {
-            color: rgb(255, 255, 255);
-            font-size: 20px;
-            text-align: center;
-            font-weight: 1000;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        table, th, td {
-            border: 2px solid black;
-        }
-        th, td {
-            padding: 8px;
-            text-align: center;
-        }
-        th {
-            background-color: #f7f2bd;
-        }
-
-        td {
-            background-color: #ffffff;
-        }
-
-        .horizonal {
-            display: flex;
-            flex-direction: row;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .vertical {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .receiptBtn {
-            margin: 3px;
-            font-family: 'GongGothicMedium'; 
-            padding: 10px;
-            width: 100px;
-            height: 40px;
-        }
-
-        #quantityContainter {
-            font-family: 'GongGothicMedium'; 
-            font-size: 35px;    
-            text-align: center;
-            margin: auto;
-            padding: 10px;
-            height: 40px;
-            width: 300px;
-            border-radius: 20px;
-            background-color: #ffffff   ;
-        }
-
-        #mainpageBtn {
-            font-family: 'GongGothicMedium'; 
-            position: absolute; 
-            right: 1%;
-            text-align: center;
-            height: 50px;
-            width: 70px;
-            font-size: 20px;
-            border-radius: 20px;
-            border-color: white;
-            background-color: #ff9900;
-        }
-    </style>
+    <link href="style/manage.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
     <h1>LINESONG MANAGER</h1><br>
     <button id="mainpageBtn">MAIN</button>
     
     <div id="quantityContainter">
+        대기인원: <span id="numberOfStudents"> </span> <br>
         대기수량: <span id="remainingQuantity"></span>
     </div>
-    <button id="minus" onclick="minusQuantity()">임시 수량 마이너스 버튼</button>
-   
     <br>
-
-    <table id="userTable">
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;대기자 명단
+    <table id="waitingUserTable">
         <thead>
             <tr>
-                <th>WaitingNumber</th>
-                <th>WaitingSpot</th>
+                <th>Number</th>
+                <th>Spot</th>
+                <th>Time</th>
                 <th>ID</th>
                 <th>Major</th>
                 <th>Name</th>
@@ -123,176 +33,26 @@
             <!-- Data will be inserted here -->
         </tbody>
     </table>
-
-    <script>
-        // 날짜 yyyy.mm.dd hh:mm:ss로 보여주기 위한 함수
-        function formatDateTime(dateTimeString) {
-            const date = new Date(dateTimeString);
-
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 +1
-            const day = String(date.getDate()).padStart(2, '0');
-            const hours = String(date.getHours()).padStart(2, '0');
-            const minutes = String(date.getMinutes()).padStart(2, '0');
-            const seconds = String(date.getSeconds()).padStart(2, '0');
-
-            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-        }
-
-        // 수령 확인 번호를 문자열로 보여주기 위한 함수 
-        function formatReceipt(n){
-            let ReceiptRes;
-            if (navigator === null) {
-                ReceiptRes = "대기";  
-            } else if (n === 1) {
-                ReceiptRes = "완료";
-            } else if (n === 0) {
-                ReceiptRes = "불가";
-            } 
-
-            return ReceiptRes;
-        }
-
-        // 학생회비 납부 여부 번호를 문자열로 보여주기 위한 함수 
-        function formatMembership(n){
-            let membershipRes;
-            if (n === 0) {
-                membershipRes = "X";   
-            } else if (n === 1) {
-                membershipRes = "O";
-            } 
-        
-            return membershipRes;
-        }
-
-        
-
-        // 대기자 데이터 가져오는 함수
-        async function fetchUsers() {
-            try {
-                const response = await fetch('/api/data');
-                const data = await response.json();
-
-                const students = data.students;
-                const lines = data.lines;
-
-                if (students && students.length > 0) {
-                    const tableBody = document.querySelector('#userTable tbody');
-                    tableBody.innerHTML = ''; // 기존 행 제거
-
-                    students.forEach(student => {
-                        // 동일한 NUID를 가진 line을 찾음
-                        const line = lines.find(l => l.NUID === student.NUID);
-
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${line ? line.WaitingNumber : 'N/A'}</td>
-                            <td>${line ? line.WaitingSpot : 'N/A'}</td>
-                            <td>${student.ID}</td>
-                            <td>${student.Major}</td>
-                            <td>${student.Name}</td>
-                            <td id="receipt-${line.NUID}">${line ? formatReceipt(line.ReceiptConfirmation) : 'N/A'}</td>
-                            <td>
-                                <div class="horizonal">
-                                    <button class="receiptBtn" onclick="Received('${student.NUID}')">수령 완료</button><br>
-                                    <button class="receiptBtn" onclick="NotReceived('${student.NUID}')">수령 불가</button>
-                                </div>
-                            </td>
-                        `;
-                        tableBody.appendChild(row);
-                    });
-                } else {
-                    console.log('No students found.');
-                }
-            } catch (error) {
-                console.error('Error fetching user data:', error);
-            }
-        }
-
-        // 수령 확인
-        async function Received(NUID) {
-            console.log("Received NUID" + NUID);
-            const response = await fetch(`/users/Received/${NUID}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-            });
-
-            if (response.ok) {
-                console.log("Receipt updated successfully");
-            } else {
-                console.error("Failed to update receipt");
-            }
-        }
-
-        // 수령 불가
-        async function NotReceived(NUID) {
-            
-            const response = await fetch(`/users/NotReceived/${NUID}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-            });
-
-            if (response.ok) {
-                console.log("Receipt updated successfully");
-            } else {
-                console.error("Failed to update receipt");
-            }
-        }
-
-        // 수량 -1
-        async function minusQuantity() {
-            //console.log("Minus quantity");
-            const response = await fetch(`/users/minusQuantity`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-            });
-
-            if (response.ok) {
-                console.log("Receipt updated successfully");
-            } else {
-                console.error("Failed to update receipt");
-            }
-        }
-
-        // 수량 데이터 가져오기
-        async function fetchQuantity() { 
-            try {
-                const response = await fetch('/api/data'); // 데이터 가져오기
-                const data = await response.json(); // JSON으로 파싱
-                
-                if (data.quantity) {
-                    document.getElementById("remainingQuantity").textContent = data.quantity[0].remainingQuantity;  
-                } else {
-                    console.log('No quantity data available');
-                }
-            } catch (error) {
-                console.error('Error fetching quantity data:', error); // 에러 처리
-            }
-        }
-
-        document.getElementById('mainpageBtn').onclick = function() {
-            window.location.href = '/main'; 
-        };
-
-        window.onload = () => {
-            fetchUsers();
-            fetchQuantity();
-            
-            const fetchData = async () => {
-                await fetchUsers();   // users 데이터 가져오기
-                await fetchQuantity(); // quantity 데이터 가져오기
-            };
-
-            // 10초마다 fetchData 함수 호출
-            //setInterval(fetchData, 10000); // 과부화 걱정 돼서 우선 10초로 진행 
-        };
-
-    </script>
+    <br><br>
+    <h2></h2>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;수령자 명단
+    <table id="ReceiptedUserTable">
+        <thead>
+            <tr>
+                <th>Number</th>
+                <th>Spot</th>
+                <th>Time</th>
+                <th>ID</th>
+                <th>Major</th>
+                <th>Name</th>
+                <th>Receipt</th>
+                <th>Receipted Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data will be inserted here -->
+        </tbody>
+    </table>
+    <script src="js/manage.js"></script>
 </body>
 </html>

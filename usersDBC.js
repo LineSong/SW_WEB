@@ -4,37 +4,51 @@ const dbConfig = require('./config/database');
 // Create the connection pool using the configuration
 const pool = mysql.createPool(dbConfig);
 
-const Received = async (NUID) => {
-    const promisePool = pool.promise(); 
-    const [rows] = await promisePool.query('UPDATE line SET ReceiptConfirmation = 1 WHERE NUID = ?', [NUID]);
-    console.log(rows);
-    return rows;
-};
-
-const NotReceived = async (NUID) => {
+const ReceiptReady = async (NUID) => {
     const promisePool = pool.promise(); 
     const [rows] = await promisePool.query('UPDATE line SET ReceiptConfirmation = 0 WHERE NUID = ?', [NUID]);
     console.log(rows);
     return rows;
 };
 
-const minusQuantity = async () => {
+const Received = async (NUID) => {
+    const promisePool = pool.promise(); 
+    const [rows] = await promisePool.query('UPDATE line SET WaitingSpot = "", ReceiptConfirmation = 1 WHERE NUID = ?', [NUID]);
+    console.log(rows);
+    return rows;
+};
+
+const NotReceived = async (NUID) => {
+    const promisePool = pool.promise(); 
+    const [rows] = await promisePool.query('UPDATE line SET WaitingSpot = "", ReceiptConfirmation = -1 WHERE NUID = ?', [NUID]);
+    console.log(rows);
+    return rows;
+};
+
+const PlusQuantity = async () => {
+    const promisePool = pool.promise(); 
+    const [rows] = await promisePool.query('UPDATE quantity SET remainingQuantity = remainingQuantity + 1');
+    console.log(rows);
+    return rows;
+};
+
+const MinusQuantity = async () => {
     const promisePool = pool.promise(); 
     const [rows] = await promisePool.query('UPDATE quantity SET remainingQuantity = remainingQuantity - 1');
     console.log(rows);
     return rows;
 };
 
-const setQuantity = async (num) => {
+const SetQuantity = async (num) => {
   const promisePool = pool.promise(); 
   const [rows] = await promisePool.query('UPDATE quantity SET remainingQuantity = ?', [num]);
   console.log(rows);
   return rows;
 };
 
-const UpdateAlphabet = async (userId, Alphabet) => {
+const UpdateSpot = async () => {
     const promisePool = pool.promise(); 
-    const [rows] = await promisePool.query('UPDATE users SET Alphabet = ? WHERE ID = ?', [Alphabet, userId]);
+    const [rows] = await promisePool.query('CALL UpdateSpot()');
     console.log(rows);
     return rows;
 };
@@ -43,6 +57,6 @@ const UpdateAlphabet = async (userId, Alphabet) => {
   
   module.exports = 
   {
-      Received, NotReceived, minusQuantity, setQuantity
+    ReceiptReady, Received, NotReceived, MinusQuantity, PlusQuantity, SetQuantity, UpdateSpot
   };
    
