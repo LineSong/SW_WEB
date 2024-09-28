@@ -43,6 +43,6 @@ const UpdateAlphabet = async (userId, Alphabet) => {
   
   module.exports = 
   {
-      getUsers, Received, NotReceived, minusQuantity, setQuantity
+      Received, NotReceived, minusQuantity, setQuantity
   };
    

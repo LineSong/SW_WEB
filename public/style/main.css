@@ -75,7 +75,7 @@ input::placeholder {
 
 #title {
     color: rgb(255, 255, 255);
-    margin-top: 20px;
+    margin-top: 60px;
     font-size: 40px;
     text-align: center;
     font-weight: 1000;
@@ -126,7 +126,7 @@ input::placeholder {
 }
 
 #logoContainer {
-    width: 1500px;
+    width: 1600px;
     position: fixed; 
     top: 50%; 
     left: 50%; 
