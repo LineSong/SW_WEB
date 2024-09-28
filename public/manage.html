@@ -22,12 +22,16 @@
     </style>
 </head>
 <body>
-    <h1>User List</h1>
+    <h1>대기열</h1><br>
+    <div>
+        대기수량: <span id="remainingQuantity"></span>
+        <button id="minus" onclick="minusQuantity()">임시 수량 마이너스 버튼</button>
+    </div>
+    <br>
+
     <table id="userTable">
         <thead>
             <tr>
-                <th>Alphabet</th>
-                <th>Time</th>
                 <th>ID</th>
                 <th>Major</th>
                 <th>Name</th>
@@ -46,43 +50,47 @@
         // Fetch data from the /getUsers endpoint
         async function fetchUsers() {
             try {
-                const response = await fetch('/Users/getUsers');
+                const response = await fetch('/api/data');
                 const data = await response.json();
 
-                if (data.status_code === 200) {
-                    const tableBody = document.querySelector('#userTable tbody');
-                    tableBody.innerHTML = ''; // Clear existing rows
+                const students = data.students;
+                const lines = data.lines;
 
-                    data.users.forEach(user => {
-                        // Create a new row for each user
+                if (students && students.length > 0) {
+                    const tableBody = document.querySelector('#userTable tbody');
+                    tableBody.innerHTML = ''; // 기존 행 제거
+
+                    students.forEach(student => {
+                        // 동일한 NUID를 가진 line을 찾음
+                        const line = lines.find(l => l.NUID === student.NUID);
+
                         const row = document.createElement('tr');
                         row.innerHTML = `
-                            <td>${user.Alphabet}</td>
-                            <td>${user.Time}</td>
-                            <td>${user.ID}</td>
-                            <td>${user.Major}</td>
-                            <td>${user.Name}</td>
-                            <td>${user.NUID}</td>
-                            <td>${user.Membership}</td>
-                            <td id="receipt-${user.ID}">${user.Receipt}</td>
+                            <td>${student.ID}</td>
+                            <td>${student.Major}</td>
+                            <td>${student.Name}</td>
+                            <td>${line.NUID}</td>
+                            <td>${student.Membership}</td>
+                            <td id="receipt-${line.NUID}">${line ? line.ReceiptConfirmation : 'N/A'}</td>
                             <td>
-                                <button onclick="Received(${user.ID})">Received</button><br>
-                                <button onclick="NotReceived(${user.ID})">Not Received</button>
+                                <button onclick="Received('${student.NUID}')">Received</button><br>
+                                <button onclick="NotReceived('${student.NUID}')">Not Received</button>
                             </td>
                         `;
                         tableBody.appendChild(row);
                     });
                 } else {
-                    console.log('No users found.');
+                    console.log('No students found.');
                 }
             } catch (error) {
                 console.error('Error fetching user data:', error);
             }
         }
 
-        async function Received(ID) {
-            
-            const response = await fetch(`/Users/Received/${ID}`, {
+
+        async function Received(NUID) {
+            console.log("Received NUID" + NUID);
+            const response = await fetch(`/users/Received/${NUID}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -94,12 +102,11 @@
             } else {
                 console.error("Failed to update receipt");
             }
-
         }
 
-        async function NotReceived(ID) {
+        async function NotReceived(NUID) {
             
-            const response = await fetch(`/Users/NotReceived/${ID}`, {
+            const response = await fetch(`/users/NotReceived/${NUID}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -111,14 +118,51 @@
             } else {
                 console.error("Failed to update receipt");
             }
-
         }
+
+        async function minusQuantity() {
+            //console.log("Minus quantity");
+            const response = await fetch(`/users/minusQuantity`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            });
+
+            if (response.ok) {
+                console.log("Receipt updated successfully");
+            } else {
+                console.error("Failed to update receipt");
+            }
+        }
+
+        async function fetchQuantity() { 
+            try {
+                const response = await fetch('/api/data'); // 데이터 가져오기
+                const data = await response.json(); // JSON으로 파싱
+                
+                if (data.quantity) {
+                    document.getElementById("remainingQuantity").textContent = data.quantity[0].remainingQuantity;  
+                } else {
+                    console.log('No quantity data available');
+                }
+            } catch (error) {
+                console.error('Error fetching quantity data:', error); // 에러 처리
+            }
+        }
+
 
         window.onload = () => {
             fetchUsers();
+            fetchQuantity();
+            
+            const fetchData = async () => {
+                await fetchUsers();   // users 데이터 가져오기
+                await fetchQuantity(); // quantity 데이터 가져오기
+            };
 
-            // 1초마다 데이터 가져옴
-            setInterval(fetchUsers, 10000); // 과부화 걱정 돼서 우선 10초로 진행 
+            // 10초마다 fetchData 함수 호출
+            setInterval(fetchData, 10000); // 과부화 걱정 돼서 우선 10초로 진행 
         };
 
     </script>

@@ -2,22 +2,34 @@ const express = require('express');
 const path = require('path');
 const mysql = require('mysql2/promise');
 const dbConfig = require('./config/database');
+const usersRouter = require('./usersRouter')
 
 const app = express();
 const port = 3000;
 
 app.use(express.static('public'));
 
+app.use(`/users`, usersRouter);
+
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'view.html'));
+});
+
+app.get('/main', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'main.html'));
+});
+
+app.get('/linesong', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'linesong.html'));
 });
 
 app.get('/api/data', async (req, res) => {
     const connection = await mysql.createConnection(dbConfig);
     try {
+        const [quantity] = await connection.execute('SELECT * FROM quantity');
         const [students] = await connection.execute('SELECT * FROM student');
         const [lines] = await connection.execute('SELECT * FROM line');
-        res.json({ students, lines });
+        res.json({ quantity, students, lines });
     } catch (error) {
         console.error('Error fetching data:', error);
         res.status(500).json({ error: 'Error fetching data' });
@@ -25,6 +37,10 @@ app.get('/api/data', async (req, res) => {
         await connection.end();
     }
 });
+
+app.get('/manage', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'manage.html'));
+    });
 
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);

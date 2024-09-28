@@ -9,7 +9,7 @@
     <body>
         <br><div id="title">SOOKMYUNG LINESONG</div><br>
         <video id="logoContainer" autoplay muted>
-            <source src="style/logo2.mp4" type="video/mp4">
+            <source src="style/Logo.mp4" type="video/mp4">
         </video>
         <div class="horizonal">
             <div class="container">   
@@ -23,7 +23,7 @@
                     <h1>MANAGER PAGE</h1>
                     <div class="horizonal">
                         <div class="vertical">
-                            <input type="text" class="input-container" id="num" placeholder="  Input the number of people">
+                            <input type="text" class="input-container" id="quantityNum" placeholder="  Input the number of people">
                             <input type="password" class="input-container" id="password" placeholder="  Input Password">
                         </div>
                         <button id="managerEnter">ENTER</button>
@@ -36,15 +36,36 @@
         </div>  
     </body>
     <script>
+        async function setQuantity(num){
+            console.log("setQuantity: " + num);
+            const response = await fetch(`/users/setQuantity/${num}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            });
+
+            if (response.ok) {
+                console.log("Receipt updated successfully");
+            } else {
+                console.error("Failed to update receipt");
+            }
+        }
         // 로고 사라지기
         window.onload = function() {
             setTimeout(function() {
                 document.getElementById('logoContainer').style.opacity = '0'; 
-            }, 2000); 
+            }, 1500); 
         };
 
         document.getElementById('linesongEnter').onclick = function() {
             window.location.href = '/linesong'; 
+        };
+
+        document.getElementById('managerEnter').onclick = function() {
+            const n = parseInt(document.getElementById("quantityNum").value);
+            setQuantity(n);
+            window.location.href = '/manage'; 
         };
     </script>
 </html>

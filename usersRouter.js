@@ -29,58 +29,15 @@ function formatRecipt(Receipt){
     return ReceiptRes;
 }
 
-router.get('/getUsers', async (req, res)=>
-{
-    let res_get_users = 
-    {
-        status_code : 500,
-        users : [] 
-    };
 
-    try
-    {
-        const rows = await userDBC.getUsers(); // DB에서 데이터 가져옴
-        res_get_users.status_code = 200;
-        if(rows.length > 0)
-        {
-            rows.forEach((user)=>
-            {
-                res_get_users.users.push
-                ({
-                    Alphabet : user.Alphabet,
-                    ID : user.ID,
-                    Major : user.Major,
-                    Name : user.Name,
-                    Time : formatDateTime(user.Time),
-                    Membership : user.Membership,
-                    NUID : user.NUID,
-                    Receipt :formatRecipt(user.Receipt),
-                });
-            });
-        }
-        else
-        {
-            console.log('사용자 없음');
-        }
-    }
-    catch(error)
-    {
-        console.log(error.message);
-    }
-    finally
-    {
-        res.json(res_get_users);
-    }
-});
-
-router.post('/Received/:ID', async (req, res) => {
+router.post('/Received/:NUID', async (req, res) => {
     const res_signup = {
         status_code: 500
     };
 
     try {
-        const userId = req.params.ID;  // URL에서 사용자 ID를 가져옴
-        const rows = await userDBC.Received(userId);
+        const NUID = req.params.NUID;  
+        const rows = await userDBC.Received(NUID);
  
         if (rows.affectedRows > 0) {
             res_signup.status_code = 200;  
@@ -94,14 +51,14 @@ router.post('/Received/:ID', async (req, res) => {
     }
 });
 
-router.post('/NotReceived/:ID', async (req, res) => {
+router.post('/NotReceived/:NUID', async (req, res) => {
     const res_signup = {
         status_code: 500
     };
 
     try {
-        const userId = req.params.ID;  // URL에서 사용자 ID를 가져옴
-        const rows = await userDBC.NotReceived(userId);
+        const NUID = req.params.NUID;  
+        const rows = await userDBC.NotReceived(NUID);
  
         if (rows.affectedRows > 0) {
             res_signup.status_code = 200;  
@@ -115,6 +72,46 @@ router.post('/NotReceived/:ID', async (req, res) => {
     }
 });
 
+router.post('/minusQuantity', async (req, res) => {
+    const res_signup = {
+        status_code: 500
+    };
+
+    try {
+        const rows = await userDBC.minusQuantity();
+ 
+        if (rows.affectedRows > 0) {
+            res_signup.status_code = 200;  
+        } else {
+            res_signup.status_code = 201;  
+        }
+    } catch (err) {
+        console.log(err.message);
+    } finally {
+        res.json(res_signup);
+    }
+});
+
+router.post('/setQuantity/:num', async (req, res) => {
+    const res_signup = {
+        status_code: 500
+    };
+
+    try {
+        const num = req.params.num;
+        const rows = await userDBC.setQuantity(num);
+ 
+        if (rows.affectedRows > 0) {
+            res_signup.status_code = 200;  
+        } else {
+            res_signup.status_code = 201;  
+        }
+    } catch (err) {
+        console.log(err.message);
+    } finally {
+        res.json(res_signup);
+    }
+});
 
 
 
