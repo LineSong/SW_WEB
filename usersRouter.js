@@ -2,34 +2,6 @@ const express = require('express');
 const userDBC = require('./usersDBC');
 const router = express.Router();
 
-
-function formatDateTime(dateTimeString) {
-    const date = new Date(dateTimeString);
-
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 +1
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
-
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-}
-
-function formatRecipt(Receipt){
-    let ReceiptRes;
-    if (Receipt === null) {
-        ReceiptRes = "대기";  // You can change this to whatever suits your needs
-    } else if (Receipt === 1) {
-        ReceiptRes = "완료";
-    } else if (Receipt === 0) {
-        ReceiptRes = "불가";
-    } 
-
-    return ReceiptRes;
-}
-
-
 router.post('/Received/:NUID', async (req, res) => {
     const res_signup = {
         status_code: 500

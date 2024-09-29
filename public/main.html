@@ -36,6 +36,7 @@
         </div>  
     </body>
     <script>
+        const passwd = 1234;
         async function setQuantity(num){
             console.log("setQuantity: " + num);
             const response = await fetch(`/users/setQuantity/${num}`, {
@@ -63,9 +64,25 @@
         };
 
         document.getElementById('managerEnter').onclick = function() {
+            let passwordValue = document.getElementById("password").value
             const n = parseInt(document.getElementById("quantityNum").value);
-            setQuantity(n);
-            window.location.href = '/manage'; 
+
+            if(passwordValue == passwd && n > 0){
+                setQuantity(n);
+                window.location.href = '/manage';
+            }
+            else if(isNaN(n) || n < 0) {
+                console.log("Wrong Password");
+                alert("0 이상의 정수를 입력하세요.");
+                document.getElementById("quantityNum").value = "";
+                document.getElementById("quantityNum").placeholder = "WRONG NUMBER";
+            }
+            else if(passwordValue != passwd) {
+                console.log("Wrong Password");
+                alert("비밀번호가 올바르지 않습니다.");
+                document.getElementById("password").value = "";
+                document.getElementById("password").placeholder = "WRONG PASSWORD";
+            }
         };
     </script>
 </html>
