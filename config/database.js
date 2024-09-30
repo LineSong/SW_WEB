@@ -10,13 +10,3 @@ module.exports = {
     connectionLimit: 10, // SJ씨가 부하 우려해서 10초로 설정
     queueLimit: 0
 };
-
-// module.exports = {
-//     host: 'localhost',
-//     user: 'root',
-//     database: 'meit',
-//     password: '@dltpwls!',
-//     waitForConnections: true,
-//     connectionLimit: 10,
-//     queueLimit: 0
-// };
