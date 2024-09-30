@@ -115,8 +115,6 @@
                 <th>ID</th>
                 <th>Major</th>
                 <th>Name</th>
-                <th>NUID</th>
-                <th>Membership</th>
                 <th>Receipt</th>
                 <th>Receipt Button</th>
             </tr>
@@ -193,8 +191,6 @@
                             <td>${student.ID}</td>
                             <td>${student.Major}</td>
                             <td>${student.Name}</td>
-                            <td>${line.NUID}</td>
-                            <td>${formatMembership(student.Membership)}</td>
                             <td id="receipt-${line.NUID}">${line ? formatReceipt(line.ReceiptConfirmation) : 'N/A'}</td>
                             <td>
                                 <div class="horizonal">

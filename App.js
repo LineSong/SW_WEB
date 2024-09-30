@@ -7,6 +7,10 @@ const usersRouter = require('./usersRouter')
 const app = express();
 const port = 3000;
 
+const cors = require('cors');
+app.use(cors());  // 모든 요청에 대해 CORS 허용
+
+
 app.use(express.static('public'));
 
 app.use(`/users`, usersRouter);
@@ -24,6 +28,7 @@ app.get('/linesong', (req, res) => {
 });
 
 app.get('/api/data', async (req, res) => {
+    console.log('Received request for /api/data');
     const connection = await mysql.createConnection(dbConfig);
     try {
         const [quantity] = await connection.execute('SELECT * FROM quantity');
@@ -42,8 +47,9 @@ app.get('/manage', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'manage.html'));
     });
 
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
     console.log(`Server running at http://localhost:${port}/main`);
 });
+
 // node app.js (터미널에서 이 코드로 실행)
 //http://127.0.0.1:3000
